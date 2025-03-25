@@ -55,7 +55,7 @@ const About = () => {
             >
               <h2 className="text-3xl font-bold mb-4">About Me</h2>
               <p className="text-gray-300 text-lg mb-6">
-                I'm a professional video editor with a passion for creating compelling visual stories. 
+                I&apos;m a professional video editor with a passion for creating compelling visual stories. 
                 With extensive experience in Adobe Premiere Pro, After Effects. 
                 I bring creativity and technical expertise to every project.
               </p>

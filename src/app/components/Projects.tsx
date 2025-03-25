@@ -70,11 +70,10 @@ const Projects = () => {
     }
 
     return () => {
-      if (slideInterval) {
-        clearInterval(slideInterval);
-      }
+      clearInterval(slideInterval);
     };
-  }, [autoPlay, projects.length]);
+  // Only re-run when autoPlay changes
+  }, [autoPlay]);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % projects.length);

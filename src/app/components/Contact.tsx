@@ -45,9 +45,9 @@ const Contact = () => {
           {/* Contact Form - Now Centered */}
           <div className="space-y-8 w-full max-w-xl">
             <div className="text-center">
-              <h2 className="text-4xl font-bold mb-4">Let's Talk</h2>
+              <h2 className="text-4xl font-bold mb-4">Let&apos;s Talk</h2>
               <p className="text-gray-300 text-lg">
-                Ready to start your next project? Send me a message and let's create something amazing together.
+                Ready to start your next project? Send me a message and let&apos;s create something amazing together.
               </p>
             </div>
 
@@ -131,7 +131,7 @@ const Contact = () => {
             >
               <h3 className="text-xl font-semibold mb-4">Work Inquiries</h3>
               <p className="text-gray-300">
-                Looking for professional video editing services? I'm always open to discussing new projects 
+                Looking for professional video editing services? I&apos;m always open to discussing new projects 
                 and creative collaborations.
               </p>
             </motion.div>

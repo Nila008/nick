@@ -2,11 +2,11 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 const Hero = () => {
-  // Typewriter effect
-  const titles = ["VIDEO EDITOR", "GRAPHIC DESIGNER", "3D EDITOR"];
+  // Typewriter effect - use useMemo to prevent recreation on each render
+  const titles = useMemo(() => ["VIDEO EDITOR", "GRAPHIC DESIGNER", "3D EDITOR"], []);
   const [titleIndex, setTitleIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -130,7 +130,7 @@ const Hero = () => {
             className="text-purple-500 font-mono mb-2 transition-colors duration-300 hover:text-purple-400 cursor-default"
             whileHover={{ scale: 1.02 }}
           >
-            Nick's Portfolio
+            JIMMY TURNER
           </motion.h2>
           <motion.h1 
             className="text-white text-6xl sm:text-7xl font-bold mb-4 leading-tight transition-colors duration-300 hover:text-purple-100 cursor-default"
@@ -151,8 +151,8 @@ const Hero = () => {
             scroll={false}
             onClick={(e) => {
               e.preventDefault();
-              document.getElementById('projects')?.scrollIntoView({
-                behavior: 'smooth'
+              document.getElementById("projects")?.scrollIntoView({
+                behavior: "smooth"
               });
             }}
           >
