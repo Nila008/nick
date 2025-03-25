@@ -148,7 +148,7 @@ const Projects = () => {
     if (autoPlay && !isVideoPlaying) {
       slideInterval = setInterval(() => {
         setCurrentSlide((prev) => (prev + 1) % projects.length);
-      }, 3000); // Change slide every 3 seconds
+      }, 5000); // Change slide every 5 seconds
     }
 
     return () => {
@@ -205,7 +205,7 @@ const Projects = () => {
                 initial={{ width: "0%" }}
                 animate={{ width: autoPlay && !isVideoPlaying ? "100%" : "0%" }}
                 transition={{ 
-                  duration: 3, 
+                  duration: 5, 
                   ease: "linear",
                   repeat: autoPlay && !isVideoPlaying ? Infinity : 0,
                   repeatType: "loop"
