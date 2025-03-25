@@ -124,7 +124,7 @@ const Navbar = () => {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="hidden md:flex space-x-8"
             >
-              {['projects', 'about', 'contact'].map((item, index) => (
+              {['projects', 'about', 'contact'].map((item) => (
                 <button
                   key={item}
                   onClick={() => scrollToSection(item)}

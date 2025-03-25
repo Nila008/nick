@@ -1,7 +1,8 @@
 'use client';
-import { motion, useAnimation, PanInfo } from 'framer-motion';
+import { motion, PanInfo } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 
 // Type definitions for YouTube API
 declare global {
@@ -82,21 +83,8 @@ const Projects = () => {
   const [touchStartX, setTouchStartX] = useState(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
-  const controls = useAnimation();
   const [showControls, setShowControls] = useState(false);
   const [showInfoHint, setShowInfoHint] = useState(false);
-
-  // Scroll to carousel function
-  const scrollToCarousel = () => {
-    const projectsSection = document.getElementById('projects');
-    if (projectsSection) {
-      const carouselTop = projectsSection.offsetTop + 100;
-      window.scrollTo({
-        top: carouselTop,
-        behavior: 'smooth'
-      });
-    }
-  };
 
   // Add YouTube API script
   useEffect(() => {
@@ -166,7 +154,7 @@ const Projects = () => {
               setShowControls(true); // Show title when paused or ended
             }
           },
-          onReady: (event: { target: unknown }) => {
+          onReady: () => {
             // When video is ready, set up initial state
             console.log("Video ready");
           }
@@ -200,7 +188,7 @@ const Projects = () => {
         setAutoPlay(true);
       }
     }, 5000); // Resume after 5 seconds if video isn't playing
-  }, [isVideoPlaying, projects.length]);
+  }, [isVideoPlaying]);
 
   const prevSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev - 1 + projects.length) % projects.length);
@@ -211,7 +199,7 @@ const Projects = () => {
         setAutoPlay(true);
       }
     }, 5000); // Resume after 5 seconds if video isn't playing
-  }, [isVideoPlaying, projects.length]);
+  }, [isVideoPlaying]);
 
   // Handle drag/swipe gestures for mobile
   const handleDragStart = (e: MouseEvent | TouchEvent | PointerEvent) => {
@@ -466,10 +454,12 @@ const Projects = () => {
                     }
                   }}
                 >
-                  <img 
+                  <Image 
                     src={`https://img.youtube.com/vi/${project.youtubeId}/mqdefault.jpg`} 
                     alt={project.title}
                     className="object-cover w-full h-full"
+                    width={320}
+                    height={180}
                   />
                   {currentSlide === index && isVideoPlaying && (
                     <div className="absolute bottom-1 right-1 bg-purple-600 rounded-full p-0.5">
