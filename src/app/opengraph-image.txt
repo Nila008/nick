@@ -1,0 +1,7 @@
+This is a placeholder for the OpenGraph image.
+
+In a production environment, you would replace this with a real image file named "opengraph-image.png" or "opengraph-image.jpg" that is 1200x630 pixels.
+
+This image will be used when your website is shared on social media platforms.
+
+For more information, see: https://nextjs.org/docs/app/api-reference/file-conventions/metadata/opengraph-image 

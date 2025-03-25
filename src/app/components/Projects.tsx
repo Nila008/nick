@@ -1,7 +1,26 @@
 'use client';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
+// Type definitions for YouTube API
+declare global {
+  interface Window {
+    YT: {
+      Player: new (
+        elementId: string,
+        config: {
+          events?: {
+            onStateChange?: (event: { data: number }) => void;
+            onReady?: (event: any) => void;
+          };
+          videoId?: string;
+        }
+      ) => any;
+    };
+    onYouTubeIframeAPIReady: () => void;
+  }
+}
 
 interface Project {
   id: number;
@@ -58,12 +77,74 @@ const Projects = () => {
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [autoPlay, setAutoPlay] = useState(true);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Add YouTube API script
+  useEffect(() => {
+    // Add YouTube API if not already added
+    if (!window.YT) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+    }
+
+    // Store original callback if it exists
+    const originalCallback = window.onYouTubeIframeAPIReady;
+    
+    // Create global callback for when YouTube API is ready
+    window.onYouTubeIframeAPIReady = setupYouTubePlayer;
+
+    // Cleanup
+    return () => {
+      // Restore original callback or set to empty function
+      window.onYouTubeIframeAPIReady = originalCallback || (() => {});
+    };
+  }, []);
+
+  // Setup YouTube player when API is ready and slide changes
+  useEffect(() => {
+    if (window.YT && window.YT.Player) {
+      setupYouTubePlayer();
+    }
+  }, [currentSlide]);
+
+  const setupYouTubePlayer = () => {
+    // Make sure the iframe is ready in the DOM
+    if (!iframeRef.current) return;
+
+    // Get the iframe ID
+    const iframeId = iframeRef.current.id;
+    if (!iframeId) return;
+
+    // Create new player or destroy existing one
+    if (window.YT && window.YT.Player) {
+      // Create new YouTube player instance
+      const player = new window.YT.Player(iframeId, {
+        events: {
+          onStateChange: (event) => {
+            // 1 = playing, 2 = paused, 0 = ended
+            if (event.data === 1) {
+              // Video is playing, pause auto-slide
+              setIsVideoPlaying(true);
+              setAutoPlay(false);
+            } else if (event.data === 0 || event.data === 2) {
+              // Video is paused or ended, resume auto-slide
+              setIsVideoPlaying(false);
+              setAutoPlay(true);
+            }
+          }
+        }
+      });
+    }
+  };
 
   // Auto-sliding functionality
   useEffect(() => {
     let slideInterval: NodeJS.Timeout;
     
-    if (autoPlay) {
+    if (autoPlay && !isVideoPlaying) {
       slideInterval = setInterval(() => {
         setCurrentSlide((prev) => (prev + 1) % projects.length);
       }, 3000); // Change slide every 3 seconds
@@ -72,21 +153,28 @@ const Projects = () => {
     return () => {
       clearInterval(slideInterval);
     };
-  // Only re-run when autoPlay changes
-  }, [autoPlay]);
+  }, [autoPlay, isVideoPlaying]);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % projects.length);
     // Pause auto-play temporarily when manually changing slides
     setAutoPlay(false);
-    setTimeout(() => setAutoPlay(true), 5000); // Resume after 5 seconds
+    setTimeout(() => {
+      if (!isVideoPlaying) {
+        setAutoPlay(true);
+      }
+    }, 5000); // Resume after 5 seconds if video isn't playing
   };
 
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + projects.length) % projects.length);
     // Pause auto-play temporarily when manually changing slides
     setAutoPlay(false);
-    setTimeout(() => setAutoPlay(true), 5000); // Resume after 5 seconds
+    setTimeout(() => {
+      if (!isVideoPlaying) {
+        setAutoPlay(true);
+      }
+    }, 5000); // Resume after 5 seconds if video isn't playing
   };
 
   return (
@@ -114,11 +202,11 @@ const Projects = () => {
               <motion.div 
                 className="h-full bg-purple-600"
                 initial={{ width: "0%" }}
-                animate={{ width: "100%" }}
+                animate={{ width: autoPlay && !isVideoPlaying ? "100%" : "0%" }}
                 transition={{ 
                   duration: 3, 
                   ease: "linear",
-                  repeat: autoPlay ? Infinity : 0,
+                  repeat: autoPlay && !isVideoPlaying ? Infinity : 0,
                   repeatType: "loop"
                 }}
               />
@@ -133,9 +221,11 @@ const Projects = () => {
               key={currentSlide} // Re-render component when slide changes
             >
               <iframe
+                ref={iframeRef}
+                id={`youtube-player-${currentSlide}`}
                 width="100%"
                 height="100%"
-                src={`https://www.youtube.com/embed/${projects[currentSlide].youtubeId}`}
+                src={`https://www.youtube.com/embed/${projects[currentSlide].youtubeId}?enablejsapi=1`}
                 title={projects[currentSlide].title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -145,6 +235,11 @@ const Projects = () => {
               <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
                 <h3 className="text-2xl font-bold mb-2">{projects[currentSlide].title}</h3>
                 <p className="text-gray-200">{projects[currentSlide].description}</p>
+                {isVideoPlaying && (
+                  <div className="mt-2 text-purple-400 text-sm">
+                    <span className="inline-block animate-pulse">●</span> Video playing - auto-slide paused
+                  </div>
+                )}
               </div>
             </motion.div>
 
@@ -169,8 +264,14 @@ const Projects = () => {
                   key={index}
                   onClick={() => {
                     setCurrentSlide(index);
+                    // Only set autoPlay to false temporarily
                     setAutoPlay(false);
-                    setTimeout(() => setAutoPlay(true), 5000);
+                    // Resume auto-play after 5 seconds if video isn't playing
+                    setTimeout(() => {
+                      if (!isVideoPlaying) {
+                        setAutoPlay(true);
+                      }
+                    }, 5000);
                   }}
                   className={`w-2 h-2 rounded-full transition-all duration-300 ${
                     currentSlide === index ? "bg-purple-500 w-4" : "bg-white/50"
@@ -180,7 +281,7 @@ const Projects = () => {
             </div>
           </div>
 
-          {/* Project Grid */}
+          {/* Project Grid - Also update these to include enablejsapi */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.map((project) => (
               <motion.div
@@ -192,7 +293,7 @@ const Projects = () => {
                 <iframe
                   width="100%"
                   height="100%"
-                  src={`https://www.youtube.com/embed/${project.youtubeId}`}
+                  src={`https://www.youtube.com/embed/${project.youtubeId}?enablejsapi=1`}
                   title={project.title}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
