@@ -29,7 +29,7 @@ const About = () => {
           className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
         >
           {/* Image Section */}
-          <div className="relative group">
+          <div className="relative group mx-auto lg:mx-0 max-w-md w-full">
             <motion.div
               className="relative rounded-lg overflow-hidden"
               whileHover={{ scale: 1.02 }}
@@ -40,26 +40,26 @@ const About = () => {
                 alt="Jimmy Turner"
                 width={500}
                 height={600}
-                className="object-cover w-full h-[600px]"
+                className="object-cover w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]"
               />
               <div className="absolute inset-0 bg-purple-600/10 group-hover:bg-purple-600/20 transition-colors duration-300" />
             </motion.div>
           </div>
 
           {/* Content Section */}
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <h2 className="text-3xl font-bold mb-4">About Me</h2>
-              <p className="text-gray-300 text-lg mb-6">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">About Me</h2>
+              <p className="text-gray-300 text-base sm:text-lg mb-4 sm:mb-6">
                 I&apos;m a professional video editor with a passion for creating compelling visual stories. 
                 With extensive experience in Adobe Premiere Pro, After Effects. 
                 I bring creativity and technical expertise to every project.
               </p>
-              <p className="text-gray-300 text-lg">
+              <p className="text-gray-300 text-base sm:text-lg">
                 My journey in video editing began with a fascination for storytelling through visual media. 
                 Today, I specialize in creating engaging content that captures attention and delivers messages effectively.
               </p>
@@ -70,7 +70,7 @@ const About = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="grid grid-cols-3 gap-6 pt-8"
+              className="grid grid-cols-3 gap-3 sm:gap-6 pt-6 sm:pt-8"
             >
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
@@ -83,8 +83,8 @@ const About = () => {
                       delay: 0.6 + (index * 0.1)
                     }}
                   >
-                    <h3 className="text-4xl font-bold text-purple-500 mb-2">{stat.value}</h3>
-                    <p className="text-gray-400">{stat.label}</p>
+                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-purple-500 mb-1 sm:mb-2">{stat.value}</h3>
+                    <p className="text-gray-400 text-xs sm:text-sm">{stat.label}</p>
                   </motion.div>
                 </div>
               ))}
@@ -95,10 +95,10 @@ const About = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="pt-8"
+              className="pt-6 sm:pt-8"
             >
-              <h3 className="text-xl font-semibold mb-4">Technical Skills</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Technical Skills</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {[
                   'Adobe Premiere Pro',
                   'After Effects',

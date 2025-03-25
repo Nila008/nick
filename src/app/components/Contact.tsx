@@ -43,21 +43,21 @@ const Contact = () => {
           className="flex flex-col items-center"
         >
           {/* Contact Form - Now Centered */}
-          <div className="space-y-8 w-full max-w-xl">
+          <div className="space-y-6 sm:space-y-8 w-full max-w-xl">
             <div className="text-center">
-              <h2 className="text-4xl font-bold mb-4">Let&apos;s Talk</h2>
-              <p className="text-gray-300 text-lg">
+              <h2 className="text-3xl sm:text-4xl font-bold mb-2 sm:mb-4">Let&apos;s Talk</h2>
+              <p className="text-gray-300 text-base sm:text-lg">
                 Ready to start your next project? Send me a message and let&apos;s create something amazing together.
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1 sm:mb-2">
                   Name
                 </label>
                 <input
@@ -66,7 +66,7 @@ const Contact = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-purple-900/20 border border-purple-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 text-white"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-purple-900/20 border border-purple-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 text-white"
                   required
                 />
               </motion.div>
@@ -76,7 +76,7 @@ const Contact = () => {
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1 sm:mb-2">
                   Email
                 </label>
                 <input
@@ -85,7 +85,7 @@ const Contact = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-purple-900/20 border border-purple-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 text-white"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-purple-900/20 border border-purple-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 text-white"
                   required
                 />
               </motion.div>
@@ -95,7 +95,7 @@ const Contact = () => {
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: 0.4 }}
               >
-                <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-1 sm:mb-2">
                   Message
                 </label>
                 <textarea
@@ -103,8 +103,8 @@ const Contact = () => {
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
-                  rows={6}
-                  className="w-full px-4 py-3 bg-purple-900/20 border border-purple-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 text-white"
+                  rows={5}
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-purple-900/20 border border-purple-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 text-white"
                   required
                 />
               </motion.div>
@@ -116,7 +116,7 @@ const Contact = () => {
                   boxShadow: "0 0 20px rgba(147,51,234,0.7)"
                 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full bg-purple-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-purple-500 transition-all duration-300 shadow-[0_0_15px_rgba(147,51,234,0.5)]"
+                className="w-full bg-purple-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold hover:bg-purple-500 transition-all duration-300 shadow-[0_0_15px_rgba(147,51,234,0.5)]"
               >
                 Send Message
               </motion.button>
@@ -127,10 +127,10 @@ const Contact = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="bg-purple-900/20 p-6 rounded-lg text-center mt-8"
+              className="bg-purple-900/20 p-4 sm:p-6 rounded-lg text-center mt-6 sm:mt-8"
             >
-              <h3 className="text-xl font-semibold mb-4">Work Inquiries</h3>
-              <p className="text-gray-300">
+              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-4">Work Inquiries</h3>
+              <p className="text-gray-300 text-sm sm:text-base">
                 Looking for professional video editing services? I&apos;m always open to discussing new projects 
                 and creative collaborations.
               </p>

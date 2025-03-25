@@ -1,7 +1,7 @@
 'use client';
-import { motion } from 'framer-motion';
+import { motion, useAnimation, PanInfo } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 // Type definitions for YouTube API
 declare global {
@@ -78,7 +78,25 @@ const Projects = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [autoPlay, setAutoPlay] = useState(true);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [touchStartX, setTouchStartX] = useState(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const controls = useAnimation();
+  const [showControls, setShowControls] = useState(false);
+  const [showInfoHint, setShowInfoHint] = useState(false);
+
+  // Scroll to carousel function
+  const scrollToCarousel = () => {
+    const projectsSection = document.getElementById('projects');
+    if (projectsSection) {
+      const carouselTop = projectsSection.offsetTop + 100;
+      window.scrollTo({
+        top: carouselTop,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   // Add YouTube API script
   useEffect(() => {
@@ -110,6 +128,16 @@ const Projects = () => {
     }
   }, [currentSlide]);
 
+  // Reset player when manually selecting a video
+  useEffect(() => {
+    if (isVideoPlaying) {
+      // Reset any existing players when a grid video is clicked
+      if (window.YT && window.YT.Player && iframeRef.current) {
+        setupYouTubePlayer();
+      }
+    }
+  }, [isVideoPlaying]);
+
   const setupYouTubePlayer = () => {
     // Make sure the iframe is ready in the DOM
     if (!iframeRef.current) return;
@@ -130,11 +158,17 @@ const Projects = () => {
               // Video is playing, pause auto-slide
               setIsVideoPlaying(true);
               setAutoPlay(false);
+              setShowControls(false); // Hide title initially when playback starts
             } else if (event.data === 0 || event.data === 2) {
               // Video is paused or ended, resume auto-slide
               setIsVideoPlaying(false);
               setAutoPlay(true);
+              setShowControls(true); // Show title when paused or ended
             }
+          },
+          onReady: (event: { target: unknown }) => {
+            // When video is ready, set up initial state
+            console.log("Video ready");
           }
         }
       });
@@ -156,7 +190,8 @@ const Projects = () => {
     };
   }, [autoPlay, isVideoPlaying]);
 
-  const nextSlide = () => {
+  // Wrap slide navigation functions in useCallback to prevent infinite dependency cycles
+  const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % projects.length);
     // Pause auto-play temporarily when manually changing slides
     setAutoPlay(false);
@@ -165,9 +200,9 @@ const Projects = () => {
         setAutoPlay(true);
       }
     }, 5000); // Resume after 5 seconds if video isn't playing
-  };
+  }, [isVideoPlaying, projects.length]);
 
-  const prevSlide = () => {
+  const prevSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev - 1 + projects.length) % projects.length);
     // Pause auto-play temporarily when manually changing slides
     setAutoPlay(false);
@@ -176,7 +211,88 @@ const Projects = () => {
         setAutoPlay(true);
       }
     }, 5000); // Resume after 5 seconds if video isn't playing
+  }, [isVideoPlaying, projects.length]);
+
+  // Handle drag/swipe gestures for mobile
+  const handleDragStart = (e: MouseEvent | TouchEvent | PointerEvent) => {
+    setIsDragging(true);
+    setAutoPlay(false);
+    
+    // For touch events
+    if ('touches' in e) {
+      setTouchStartX(e.touches[0].clientX);
+    }
   };
+
+  const handleDragEnd = (e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    setIsDragging(false);
+    
+    // If dragged significantly to the left, go to next slide
+    if (info.offset.x < -50) {
+      nextSlide();
+    }
+    
+    // If dragged significantly to the right, go to previous slide
+    if (info.offset.x > 50) {
+      prevSlide();
+    }
+    
+    // Resume autoplay if no video is playing
+    if (!isVideoPlaying) {
+      setTimeout(() => {
+        setAutoPlay(true);
+      }, 5000);
+    }
+  };
+
+  // Add passive event listeners for better touch performance
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+
+    // These need to be defined here to reference in both add/remove
+    const handleTouchStartPassive = (e: TouchEvent) => {
+      setTouchStartX(e.touches[0].clientX);
+      setAutoPlay(false);
+    };
+    
+    const handleTouchEndPassive = (e: TouchEvent) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diffX = touchStartX - touchEndX;
+      
+      if (Math.abs(diffX) > 50) {
+        if (diffX > 0) {
+          nextSlide();
+        } else {
+          prevSlide();
+        }
+      }
+      
+      if (!isVideoPlaying) {
+        setTimeout(() => setAutoPlay(true), 5000);
+      }
+    };
+
+    // Add passive listeners for better performance
+    carousel.addEventListener('touchstart', handleTouchStartPassive, { passive: true });
+    carousel.addEventListener('touchend', handleTouchEndPassive, { passive: true });
+
+    return () => {
+      carousel.removeEventListener('touchstart', handleTouchStartPassive);
+      carousel.removeEventListener('touchend', handleTouchEndPassive);
+    };
+  }, [touchStartX, isVideoPlaying, nextSlide, prevSlide]);
+
+  // Show hint when video starts playing
+  useEffect(() => {
+    if (isVideoPlaying) {
+      setShowInfoHint(true);
+      const timer = setTimeout(() => {
+        setShowInfoHint(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isVideoPlaying]);
 
   return (
     <section className="relative bg-black text-white py-20" id="projects">
@@ -192,12 +308,16 @@ const Projects = () => {
           className="space-y-12"
         >
           <div className="text-center">
-            <h2 className="text-4xl font-bold mb-4">My Projects</h2>
-            <p className="text-gray-300 text-lg">Check out some of my best work</p>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-2 sm:mb-4">My Projects</h2>
+            <p className="text-gray-300 text-base sm:text-lg">Check out some of my best work</p>
           </div>
 
           {/* Featured Projects Carousel */}
-          <div className="relative">
+          <div 
+            id="featured-carousel" 
+            className="relative touch-pan-y select-none max-w-5xl mx-auto"
+            ref={carouselRef}
+          >
             {/* Progress bar for auto-slide timing */}
             <div className="absolute top-0 left-0 right-0 z-20 h-1 bg-purple-900/20">
               <motion.div 
@@ -214,52 +334,97 @@ const Projects = () => {
             </div>
             
             <motion.div
-              className="relative aspect-video rounded-lg overflow-hidden bg-purple-900/5"
-              whileHover={{ scale: 1.02 }}
+              className="relative aspect-video rounded-lg overflow-hidden bg-purple-900/5 shadow-lg shadow-purple-900/20"
+              whileHover={{ scale: isDragging ? 1 : 1.02 }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.1}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
               key={currentSlide} // Re-render component when slide changes
+              onMouseEnter={() => setShowControls(true)}
+              onMouseLeave={() => setShowControls(false)}
+              onClick={() => setShowControls(!showControls)}
             >
+              {/* Tap for info hint - only shows briefly when video starts */}
+              {showInfoHint && isVideoPlaying && (
+                <motion.div 
+                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/70 text-white px-4 py-2 rounded-full z-20 pointer-events-none"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 18l6-6-6-6"></path>
+                    </svg>
+                    <span className="text-sm">Tap for info</span>
+                  </div>
+                </motion.div>
+              )}
+
               <iframe
                 ref={iframeRef}
                 id={`youtube-player-${currentSlide}`}
                 width="100%"
                 height="100%"
-                src={`https://www.youtube.com/embed/${projects[currentSlide].youtubeId}?enablejsapi=1`}
+                src={`https://www.youtube.com/embed/${projects[currentSlide].youtubeId}?enablejsapi=1${isVideoPlaying ? '&autoplay=1' : ''}`}
                 title={projects[currentSlide].title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 className="absolute inset-0"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
-              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                <h3 className="text-2xl font-bold mb-2">{projects[currentSlide].title}</h3>
-                <p className="text-gray-200">{projects[currentSlide].description}</p>
+              <motion.div 
+                className="absolute bottom-0 left-0 right-0 p-3 sm:p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent"
+                initial={{ opacity: 1 }}
+                animate={{ 
+                  opacity: isVideoPlaying && !showControls ? 0 : 1,
+                  y: isVideoPlaying && !showControls ? 20 : 0
+                }}
+                transition={{ duration: 0.3 }}
+              >
+                <h3 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">{projects[currentSlide].title}</h3>
+                <p className="text-gray-200 text-sm sm:text-base">{projects[currentSlide].description}</p>
                 {isVideoPlaying && (
-                  <div className="mt-2 text-purple-400 text-sm">
+                  <div className="mt-2 text-purple-400 text-xs sm:text-sm">
                     <span className="inline-block animate-pulse">●</span> Video playing - auto-slide paused
                   </div>
                 )}
-              </div>
+              </motion.div>
             </motion.div>
 
-            {/* Carousel Controls */}
+            {/* Swipe instructions for mobile - only show when not playing video */}
+            {!isVideoPlaying && (
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white/60 text-sm pointer-events-none md:hidden">
+                <div className="flex items-center justify-center space-x-2">
+                  <span>←</span>
+                  <span className="text-xs">Swipe to navigate</span>
+                  <span>→</span>
+                </div>
+              </div>
+            )}
+
+            {/* Carousel Controls - hidden on small screens where touch is preferred */}
             <button
               onClick={prevSlide}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-purple-600/80 p-3 rounded-full hover:bg-purple-600 transition-colors"
+              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-purple-600/80 p-2 sm:p-3 rounded-full hover:bg-purple-600 transition-colors text-sm sm:text-base hidden sm:block"
             >
               ←
             </button>
             <button
               onClick={nextSlide}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-purple-600/80 p-3 rounded-full hover:bg-purple-600 transition-colors"
+              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-purple-600/80 p-2 sm:p-3 rounded-full hover:bg-purple-600 transition-colors text-sm sm:text-base hidden sm:block"
             >
               →
             </button>
             
             {/* Slide indicators */}
-            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+            <div className="absolute bottom-0 sm:bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1 sm:space-x-2 z-20">
               {projects.map((_, index) => (
                 <button
                   key={index}
@@ -274,40 +439,46 @@ const Projects = () => {
                       }
                     }, 5000);
                   }}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    currentSlide === index ? "bg-purple-500 w-4" : "bg-white/50"
+                  className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
+                    currentSlide === index ? "bg-purple-500 w-3 sm:w-4" : "bg-white/50"
                   }`}
                 />
               ))}
             </div>
           </div>
 
-          {/* Project Grid - Also update these to include enablejsapi */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((project) => (
-              <motion.div
-                key={project.id}
-                className="relative aspect-video rounded-lg overflow-hidden bg-purple-900/5"
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.3 }}
-              >
-                <iframe
-                  width="100%"
-                  height="100%"
-                  src={`https://www.youtube.com/embed/${project.youtubeId}?enablejsapi=1`}
-                  title={project.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="absolute inset-0"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h3 className="text-xl font-bold mb-1">{project.title}</h3>
-                    <p className="text-sm text-gray-200">{project.description}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+          {/* Project Thumbnails Navigation */}
+          <div className="mt-6 overflow-x-auto pb-4 hide-scrollbar">
+            <div className="flex space-x-3 min-w-min mx-auto max-w-full justify-center">
+              {projects.map((project, index) => (
+                <button
+                  key={project.id}
+                  className={`relative flex-shrink-0 w-24 sm:w-28 md:w-32 aspect-video rounded-md overflow-hidden transition-all duration-300 ${
+                    currentSlide === index 
+                      ? 'ring-2 ring-purple-500 scale-110 z-10' 
+                      : 'opacity-70 hover:opacity-100'
+                  }`}
+                  onClick={() => {
+                    setCurrentSlide(index);
+                    setAutoPlay(false);
+                    if (index !== currentSlide) {
+                      setIsVideoPlaying(false);
+                    }
+                  }}
+                >
+                  <img 
+                    src={`https://img.youtube.com/vi/${project.youtubeId}/mqdefault.jpg`} 
+                    alt={project.title}
+                    className="object-cover w-full h-full"
+                  />
+                  {currentSlide === index && isVideoPlaying && (
+                    <div className="absolute bottom-1 right-1 bg-purple-600 rounded-full p-0.5">
+                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         </motion.div>
       </div>

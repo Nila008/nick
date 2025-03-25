@@ -6,20 +6,28 @@ import { useState, useEffect, useMemo } from 'react';
 
 const Hero = () => {
   // Typewriter effect - use useMemo to prevent recreation on each render
-  const titles = useMemo(() => ["VIDEO EDITOR", "GRAPHIC DESIGNER", "3D EDITOR"], []);
+  const titles = useMemo(() => [
+    { text: "VIDEO EDITOR", glowClass: "text-glow-purple" },
+    { text: "GRAPHIC DESIGNER", glowClass: "text-glow-blue" },
+    { text: "3D EDITOR", glowClass: "text-glow-green" }
+  ], []);
+  
   const [titleIndex, setTitleIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [typingSpeed, setTypingSpeed] = useState(150);
+  const [currentGlowClass, setCurrentGlowClass] = useState(titles[0].glowClass);
 
   useEffect(() => {
-    const currentTitle = titles[titleIndex];
+    const currentTitle = titles[titleIndex].text;
+    const currentGlow = titles[titleIndex].glowClass;
     
     // Handle deleting and typing
     const timer = setTimeout(() => {
       if (!isDeleting) {
         // Typing
         setDisplayText(currentTitle.substring(0, displayText.length + 1));
+        setCurrentGlowClass(currentGlow);
         setTypingSpeed(150);
         
         // If we finished typing
@@ -57,7 +65,7 @@ const Hero = () => {
           scale: { type: "spring", stiffness: 260, damping: 20, delay: 0.5 },
           opacity: { duration: 0.8, delay: 0.5 }
         }}
-        className="absolute top-1/4 left-1/4 transform -translate-x-1/2"
+        className="absolute top-1/4 left-1/4 transform -translate-x-1/2 hidden sm:block"
         whileHover={{
           scale: 1.1,
           opacity: 0.8,
@@ -91,7 +99,7 @@ const Hero = () => {
           scale: { type: "spring", stiffness: 260, damping: 20, delay: 0.8 },
           opacity: { duration: 0.8, delay: 0.8 }
         }}
-        className="absolute top-1/2 right-1/4 transform translate-x-1/3"
+        className="absolute top-1/2 right-1/4 transform translate-x-1/3 hidden sm:block"
         whileHover={{
           scale: 1.1,
           opacity: 0.9,
@@ -124,24 +132,24 @@ const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center px-4 sm:px-6 lg:px-8"
+          className="text-center px-4 sm:px-6 lg:px-8 max-w-full"
         >
           <motion.h2 
-            className="text-purple-500 font-mono mb-2 transition-colors duration-300 hover:text-purple-400 cursor-default"
+            className="text-purple-500 font-mono mb-2 transition-colors duration-300 hover:text-purple-400 cursor-default text-base sm:text-lg"
             whileHover={{ scale: 1.02 }}
           >
             Nick&apos;s Portfolio
           </motion.h2>
           <motion.h1 
-            className="text-white text-6xl sm:text-7xl font-bold mb-4 leading-tight transition-colors duration-300 hover:text-purple-100 cursor-default"
+            className="text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 leading-tight transition-colors duration-300 hover:text-purple-100 cursor-default"
             whileHover={{ scale: 1.01 }}
           >
-            PROFESSIONAL<br />
-            <span className="inline-block min-h-[1.2em]">{displayText}</span>
+            <span className="animate-glow-pulse tracking-wider">PROFESSIONAL</span><br />
+            <span className={`inline-block min-h-[1.2em] tracking-wide ${currentGlowClass}`}>{displayText}</span>
             <span className="text-purple-500 animate-blink">|</span>
           </motion.h1>
           <motion.p 
-            className="text-gray-300 text-xl mb-8 transition-colors duration-300 hover:text-white cursor-default"
+            className="text-gray-300 text-lg sm:text-xl mb-6 sm:mb-8 transition-colors duration-300 hover:text-white cursor-default"
             whileHover={{ scale: 1.02 }}
           >
             Making Your Videos Look More Cool.
