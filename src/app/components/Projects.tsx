@@ -12,11 +12,11 @@ declare global {
         config: {
           events?: {
             onStateChange?: (event: { data: number }) => void;
-            onReady?: (event: any) => void;
+            onReady?: (event: { target: unknown }) => void;
           };
           videoId?: string;
         }
-      ) => any;
+      ) => unknown;
     };
     onYouTubeIframeAPIReady: () => void;
   }
@@ -121,9 +121,10 @@ const Projects = () => {
     // Create new player or destroy existing one
     if (window.YT && window.YT.Player) {
       // Create new YouTube player instance
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const player = new window.YT.Player(iframeId, {
         events: {
-          onStateChange: (event) => {
+          onStateChange: (event: { data: number }) => {
             // 1 = playing, 2 = paused, 0 = ended
             if (event.data === 1) {
               // Video is playing, pause auto-slide
