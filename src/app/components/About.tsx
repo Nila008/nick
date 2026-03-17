@@ -10,9 +10,9 @@ const About = () => {
   });
 
   const stats = [
-    { label: 'Years Experience', value: '5+' },
-    { label: 'Projects Completed', value: '100+' },
-    { label: 'Happy Clients', value: '50+' },
+    { label: 'Years Experience', value: '1.5+' },
+    { label: 'Projects Completed', value: '30+' },
+    { label: 'Happy Clients', value: '10+' },
   ];
 
   return (

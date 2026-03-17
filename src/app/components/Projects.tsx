@@ -34,36 +34,85 @@ interface Project {
 const projects: Project[] = [
   {
     id: 1,
-    title: "Fast-Paced",
-    description: "A informative video just like the issac style",
-    youtubeId: "0lz5rZFNeRI?si=MkeCgiYDmK99hX9Z",
-    category: "Ai"
+    title: "Nirbhaya Documentary",
+    description: "A documentary about the Nirbhaya case",
+    youtubeId: "XE2MH4B0VWk",
+    category: "Doocumentary"
   },
   {
     id: 2,
-    title: "Young Trader",
-    description: "Money Related Video",
-    youtubeId: "JJoMC11prOM",
-    category: "Money"
+    title: "Technology Video",
+    description: "Tech-related content",
+    youtubeId: "6OGzclIlKb8",
+    category: "Technology"
   },
   {
     id: 3,
-    title: "Informative",
-    description: "Issac Style",
-    youtubeId: "C3suS54H1wg",
-    category: "Information"
+    title: "Fitness Vlog",
+    description: "Gym related",
+    youtubeId: "3h_Vs1Z85T4",
+    category: "Fitness"
   },
   {
     id: 4,
-    title: "3d Car",
-    description: "Car animation",
-    youtubeId: "NaZY8HP5DCk",
-    category: "Car"
+    title: "Fitness Video",
+    description: "Gym related or Fitness Type",
+    youtubeId: "oOS8RVwDMTI",
+    category: "Fitness"
   },
   {
     id: 5,
-    title: "Fortnite Video",
-    description: "Gaming Video",
+    title: "High Quality Short",
+    description: "A high-quality short video",
+    youtubeId: "E1kR2N0F2Uo",
+    category: "Short"
+  },
+  {
+    id: 6,
+    title: "3d Product",
+    description: "3D Product Video",
+    youtubeId: "WuSubgAsv2c",
+    category: "3D"
+    },
+  {
+    id: 7,
+    title: "3d animation",
+    description: "3D Animation with 2M views",
+    youtubeId: "esk5ik_u0j4",
+    category: "3D"
+  },
+  {
+    id: 8,
+    title: "Zack D Flim",
+    description: "Zack D Style",
+    youtubeId: "19tdo7Gxabc",
+    category: "3D"
+  },
+  {
+    id: 9,
+    title: "Bolt Motivation",
+    description: "Style like Bolt Motivation",
+    youtubeId: "wy2b3KXBmiI",
+    category: "Quality"
+  },
+    {
+    id: 10,
+    title: "Trading",
+    description: "Trading related content",
+    youtubeId: "V5NqLQSwwTQ",
+    category: "Trading"
+  },
+  {
+    id: 11,
+    title: "2D and 3D Mix",
+    description: "Both 2D and 3D Animation",
+    youtubeId: "RQAMXtrCQmA",
+    category: "3D"
+  },
+    {
+    id: 12,
+    title: "Gaming Video",
+    description: "Gaming content",
     youtubeId: "L7YxgP5qeOc",
     category: "Gaming"
   },
@@ -77,7 +126,6 @@ const Projects = () => {
   });
 
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [autoPlay, setAutoPlay] = useState(true);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [touchStartX, setTouchStartX] = useState(0);
@@ -85,6 +133,20 @@ const Projects = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [showControls, setShowControls] = useState(false);
   const [showInfoHint, setShowInfoHint] = useState(false);
+  const [thumbIndex, setThumbIndex] = useState(0);
+  const [thumbnailCount, setThumbnailCount] = useState(4);
+
+  // Detect screen size for responsive thumbnail count
+  useEffect(() => {
+    const updateThumbnailCount = () => {
+      const isMobile = window.innerWidth < 640;
+      setThumbnailCount(isMobile ? 2 : 4);
+    };
+
+    updateThumbnailCount();
+    window.addEventListener('resize', updateThumbnailCount);
+    return () => window.removeEventListener('resize', updateThumbnailCount);
+  }, []);
 
   // Add YouTube API script
   useEffect(() => {
@@ -143,14 +205,12 @@ const Projects = () => {
           onStateChange: (event: { data: number }) => {
             // 1 = playing, 2 = paused, 0 = ended
             if (event.data === 1) {
-              // Video is playing, pause auto-slide
+              // Video is playing
               setIsVideoPlaying(true);
-              setAutoPlay(false);
               setShowControls(false); // Hide title initially when playback starts
             } else if (event.data === 0 || event.data === 2) {
-              // Video is paused or ended, resume auto-slide
+              // Video is paused or ended
               setIsVideoPlaying(false);
-              setAutoPlay(true);
               setShowControls(true); // Show title when paused or ended
             }
           },
@@ -163,48 +223,33 @@ const Projects = () => {
     }
   };
 
-  // Auto-sliding functionality
+  // Auto-sliding disabled - slides change only on manual interaction
   useEffect(() => {
-    let slideInterval: NodeJS.Timeout;
-    
-    if (autoPlay && !isVideoPlaying) {
-      slideInterval = setInterval(() => {
-        setCurrentSlide((prev) => (prev + 1) % projects.length);
-      }, 5000); // Change slide every 5 seconds
-    }
-
-    return () => {
-      clearInterval(slideInterval);
-    };
-  }, [autoPlay, isVideoPlaying]);
+    // Auto-sliding is disabled for manual control
+    return () => {};
+  }, []);
 
   // Wrap slide navigation functions in useCallback to prevent infinite dependency cycles
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % projects.length);
-    // Pause auto-play temporarily when manually changing slides
-    setAutoPlay(false);
-    setTimeout(() => {
-      if (!isVideoPlaying) {
-        setAutoPlay(true);
-      }
-    }, 5000); // Resume after 5 seconds if video isn't playing
-  }, [isVideoPlaying]);
+  }, []);
+
+  // Thumbnail navigation handlers - move by thumbnailCount at a time
+  const moveThumbLeft = useCallback(() => {
+    setThumbIndex((prev) => Math.max(prev - thumbnailCount, 0));
+  }, [thumbnailCount]);
+
+  const moveThumbRight = useCallback(() => {
+    setThumbIndex((prev) => Math.min(prev + thumbnailCount, Math.max(projects.length - thumbnailCount, 0)));
+  }, [thumbnailCount]);
 
   const prevSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev - 1 + projects.length) % projects.length);
-    // Pause auto-play temporarily when manually changing slides
-    setAutoPlay(false);
-    setTimeout(() => {
-      if (!isVideoPlaying) {
-        setAutoPlay(true);
-      }
-    }, 5000); // Resume after 5 seconds if video isn't playing
-  }, [isVideoPlaying]);
+  }, []);
 
   // Handle drag/swipe gestures for mobile
   const handleDragStart = (e: MouseEvent | TouchEvent | PointerEvent) => {
     setIsDragging(true);
-    setAutoPlay(false);
     
     // For touch events
     if ('touches' in e) {
@@ -224,13 +269,6 @@ const Projects = () => {
     if (info.offset.x > 50) {
       prevSlide();
     }
-    
-    // Resume autoplay if no video is playing
-    if (!isVideoPlaying) {
-      setTimeout(() => {
-        setAutoPlay(true);
-      }, 5000);
-    }
   };
 
   // Add passive event listeners for better touch performance
@@ -241,7 +279,6 @@ const Projects = () => {
     // These need to be defined here to reference in both add/remove
     const handleTouchStartPassive = (e: TouchEvent) => {
       setTouchStartX(e.touches[0].clientX);
-      setAutoPlay(false);
     };
     
     const handleTouchEndPassive = (e: TouchEvent) => {
@@ -255,10 +292,6 @@ const Projects = () => {
           prevSlide();
         }
       }
-      
-      if (!isVideoPlaying) {
-        setTimeout(() => setAutoPlay(true), 5000);
-      }
     };
 
     // Add passive listeners for better performance
@@ -269,7 +302,7 @@ const Projects = () => {
       carousel.removeEventListener('touchstart', handleTouchStartPassive);
       carousel.removeEventListener('touchend', handleTouchEndPassive);
     };
-  }, [touchStartX, isVideoPlaying, nextSlide, prevSlide]);
+  }, [touchStartX, nextSlide, prevSlide]);
 
   // Show hint when video starts playing
   useEffect(() => {
@@ -283,11 +316,11 @@ const Projects = () => {
   }, [isVideoPlaying]);
 
   return (
-    <section className="relative bg-black text-white py-20" id="projects">
+    <section className="relative bg-black text-white py-10 sm:py-16 md:py-20" id="projects">
       {/* Subtle gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/5 via-transparent to-transparent" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 20 }}
@@ -296,8 +329,8 @@ const Projects = () => {
           className="space-y-12"
         >
           <div className="text-center">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-2 sm:mb-4">My Projects</h2>
-            <p className="text-gray-300 text-base sm:text-lg">Check out some of my best work</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4">My Projects</h2>
+            <p className="text-gray-400 text-xs sm:text-base md:text-lg">Check out some of my best work</p>
           </div>
 
           {/* Featured Projects Carousel */}
@@ -306,27 +339,14 @@ const Projects = () => {
             className="relative touch-pan-y select-none max-w-5xl mx-auto"
             ref={carouselRef}
           >
-            {/* Progress bar for auto-slide timing */}
-            <div className="absolute top-0 left-0 right-0 z-20 h-1 bg-purple-900/20">
-              <motion.div 
-                className="h-full bg-purple-600"
-                initial={{ width: "0%" }}
-                animate={{ width: autoPlay && !isVideoPlaying ? "100%" : "0%" }}
-                transition={{ 
-                  duration: 5, 
-                  ease: "linear",
-                  repeat: autoPlay && !isVideoPlaying ? Infinity : 0,
-                  repeatType: "loop"
-                }}
-              />
-            </div>
+            {/* Progress bar removed - auto-sliding disabled */}
             
             <motion.div
-              className="relative aspect-video rounded-lg overflow-hidden bg-purple-900/5 shadow-lg shadow-purple-900/20"
+              className="relative aspect-video rounded-md sm:rounded-lg overflow-hidden bg-purple-900/5 shadow-lg shadow-purple-900/20"
               whileHover={{ scale: isDragging ? 1 : 1.02 }}
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.1}
+              dragElastic={0.15}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
               animate={{ opacity: 1 }}
@@ -368,7 +388,7 @@ const Projects = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
               <motion.div 
-                className="absolute bottom-0 left-0 right-0 p-3 sm:p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent"
+                className="absolute bottom-0 left-0 right-0 p-2 sm:p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent"
                 initial={{ opacity: 1 }}
                 animate={{ 
                   opacity: isVideoPlaying && !showControls ? 0 : 1,
@@ -376,99 +396,124 @@ const Projects = () => {
                 }}
                 transition={{ duration: 0.3 }}
               >
-                <h3 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">{projects[currentSlide].title}</h3>
-                <p className="text-gray-200 text-sm sm:text-base">{projects[currentSlide].description}</p>
+                <h3 className="text-base sm:text-lg md:text-2xl font-bold mb-1 sm:mb-2 leading-tight">{projects[currentSlide].title}</h3>
+                <p className="text-gray-300 text-xs sm:text-sm md:text-base leading-snug">{projects[currentSlide].description}</p>
                 {isVideoPlaying && (
                   <div className="mt-2 text-purple-400 text-xs sm:text-sm">
-                    <span className="inline-block animate-pulse">●</span> Video playing - auto-slide paused
+                    <span className="inline-block animate-pulse">●</span> Video playing
                   </div>
                 )}
               </motion.div>
             </motion.div>
 
-            {/* Swipe instructions for mobile - only show when not playing video */}
-            {!isVideoPlaying && (
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white/60 text-sm pointer-events-none md:hidden">
-                <div className="flex items-center justify-center space-x-2">
-                  <span>←</span>
-                  <span className="text-xs">Swipe to navigate</span>
-                  <span>→</span>
-                </div>
+            {/* Swipe instructions for mobile */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white/60 text-sm pointer-events-none md:hidden">
+              <div className="flex items-center justify-center space-x-2">
+                <span>←</span>
+                <span className="text-xs">Swipe to navigate</span>
+                <span>→</span>
               </div>
-            )}
+            </div>
 
             {/* Carousel Controls - hidden on small screens where touch is preferred */}
             <button
               onClick={prevSlide}
-              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-purple-600/80 p-2 sm:p-3 rounded-full hover:bg-purple-600 transition-colors text-sm sm:text-base hidden sm:block"
+              className="absolute left-1 sm:left-3 top-1/2 -translate-y-1/2 bg-purple-600/80 p-2.5 sm:p-3 rounded-full hover:bg-purple-500 active:bg-purple-700 transition-colors text-base hidden sm:flex items-center justify-center min-w-[44px] min-h-[44px]"
+              aria-label="Previous slide"
             >
               ←
             </button>
             <button
               onClick={nextSlide}
-              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-purple-600/80 p-2 sm:p-3 rounded-full hover:bg-purple-600 transition-colors text-sm sm:text-base hidden sm:block"
+              className="absolute right-1 sm:right-3 top-1/2 -translate-y-1/2 bg-purple-600/80 p-2.5 sm:p-3 rounded-full hover:bg-purple-500 active:bg-purple-700 transition-colors text-base hidden sm:flex items-center justify-center min-w-[44px] min-h-[44px]"
+              aria-label="Next slide"
             >
               →
             </button>
             
             {/* Slide indicators */}
-            <div className="absolute bottom-0 sm:bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1 sm:space-x-2 z-20">
+            <div className="absolute bottom-2 sm:bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-1 sm:space-x-1.5 z-20">
               {projects.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => {
                     setCurrentSlide(index);
-                    // Only set autoPlay to false temporarily
-                    setAutoPlay(false);
-                    // Resume auto-play after 5 seconds if video isn't playing
-                    setTimeout(() => {
-                      if (!isVideoPlaying) {
-                        setAutoPlay(true);
-                      }
-                    }, 5000);
                   }}
-                  className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
-                    currentSlide === index ? "bg-purple-500 w-3 sm:w-4" : "bg-white/50"
+                  className={`rounded-full transition-all duration-300 ${
+                    currentSlide === index ? "bg-purple-500 w-1.5 sm:w-2 h-1.5 sm:h-2" : "bg-white/40 w-1 sm:w-1.5 h-1 sm:h-1.5"
                   }`}
+                  aria-label={`Go to slide ${index + 1}`}
                 />
               ))}
             </div>
           </div>
 
           {/* Project Thumbnails Navigation */}
-          <div className="mt-6 overflow-x-auto pb-4 hide-scrollbar">
-            <div className="flex space-x-3 min-w-min mx-auto max-w-full justify-center">
-              {projects.map((project, index) => (
-                <button
-                  key={project.id}
-                  className={`relative flex-shrink-0 w-24 sm:w-28 md:w-32 aspect-video rounded-md overflow-hidden transition-all duration-300 ${
-                    currentSlide === index 
-                      ? 'ring-2 ring-purple-500 scale-110 z-10' 
-                      : 'opacity-70 hover:opacity-100'
-                  }`}
-                  onClick={() => {
-                    setCurrentSlide(index);
-                    setAutoPlay(false);
-                    if (index !== currentSlide) {
-                      setIsVideoPlaying(false);
-                    }
-                  }}
-                >
-                  <Image 
-                    src={`https://img.youtube.com/vi/${project.youtubeId}/mqdefault.jpg`} 
-                    alt={project.title}
-                    className="object-cover w-full h-full"
-                    width={320}
-                    height={180}
-                  />
-                  {currentSlide === index && isVideoPlaying && (
-                    <div className="absolute bottom-1 right-1 bg-purple-600 rounded-full p-0.5">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-                    </div>
-                  )}
-                </button>
-              ))}
+          <div className="mt-4 sm:mt-6 pb-2 sm:pb-4 flex items-center justify-center gap-1.5 sm:gap-3 md:gap-4">
+            {/* Left Arrow - hidden on mobile */}
+            <button
+              onClick={moveThumbLeft}
+              disabled={thumbIndex === 0}
+              className={`hidden sm:flex flex-shrink-0 p-2 sm:p-2.5 rounded-full transition-all duration-300 items-center justify-center min-w-[36px] min-h-[36px] ${
+                thumbIndex === 0
+                  ? 'bg-gray-700/40 text-gray-500 cursor-not-allowed opacity-50'
+                  : 'bg-purple-600/80 text-white hover:bg-purple-500 active:bg-purple-700'
+              }`}
+              aria-label="Previous thumbnail group"
+            >
+              ←
+            </button>
+
+            {/* Thumbnails Container */}
+            <div className="flex space-x-2 sm:space-x-3">
+              {projects.slice(thumbIndex, thumbIndex + thumbnailCount).map((project, sliceIndex) => {
+                const actualIndex = thumbIndex + sliceIndex;
+                return (
+                  <button
+                    key={project.id}
+                    className={`relative flex-shrink-0 w-20 sm:w-24 md:w-32 aspect-video rounded-md overflow-hidden transition-all duration-300 ${
+                      currentSlide === actualIndex 
+                        ? 'ring-2 ring-purple-500 scale-105 sm:scale-110 z-10' 
+                        : 'opacity-60 hover:opacity-80 active:opacity-100'
+                    }`}
+                    onClick={() => {
+                      setCurrentSlide(actualIndex);
+                      if (actualIndex !== currentSlide) {
+                        setIsVideoPlaying(false);
+                      }
+                    }}
+                    aria-label={`Video ${actualIndex + 1}: ${project.title}`}
+                  >
+                    <Image 
+                      src={`https://img.youtube.com/vi/${project.youtubeId}/mqdefault.jpg`} 
+                      alt={project.title}
+                      className="object-cover w-full h-full"
+                      width={320}
+                      height={180}
+                    />
+                    {currentSlide === actualIndex && isVideoPlaying && (
+                      <div className="absolute bottom-1 right-1 bg-purple-600 rounded-full p-0.5">
+                        <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
+
+            {/* Right Arrow - hidden on mobile */}
+            <button
+              onClick={moveThumbRight}
+              disabled={thumbIndex >= Math.max(projects.length - thumbnailCount, 0)}
+              className={`hidden sm:flex flex-shrink-0 p-2 sm:p-2.5 rounded-full transition-all duration-300 items-center justify-center min-w-[36px] min-h-[36px] ${
+                thumbIndex >= Math.max(projects.length - thumbnailCount, 0)
+                  ? 'bg-gray-700/40 text-gray-500 cursor-not-allowed opacity-50'
+                  : 'bg-purple-600/80 text-white hover:bg-purple-500 active:bg-purple-700'
+              }`}
+              aria-label="Next thumbnail group"
+            >
+              →
+            </button>
           </div>
         </motion.div>
       </div>
