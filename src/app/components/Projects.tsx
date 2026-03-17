@@ -140,7 +140,7 @@ const Projects = () => {
   useEffect(() => {
     const updateThumbnailCount = () => {
       const isMobile = window.innerWidth < 640;
-      setThumbnailCount(isMobile ? 2 : 4);
+      setThumbnailCount(isMobile ? 3 : 4);
     };
 
     updateThumbnailCount();
@@ -328,7 +328,7 @@ const Projects = () => {
           transition={{ duration: 0.8 }}
           className="space-y-12"
         >
-          <div className="text-center">
+          <div className="text-center mb-6 sm:mb-8 md:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4">My Projects</h2>
             <p className="text-gray-400 text-xs sm:text-base md:text-lg">Check out some of my best work</p>
           </div>
@@ -336,7 +336,7 @@ const Projects = () => {
           {/* Featured Projects Carousel */}
           <div 
             id="featured-carousel" 
-            className="relative touch-pan-y select-none max-w-5xl mx-auto"
+            className="relative touch-pan-y select-none max-w-5xl mx-auto px-2 sm:px-4 md:px-0"
             ref={carouselRef}
           >
             {/* Progress bar removed - auto-sliding disabled */}
@@ -388,7 +388,7 @@ const Projects = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
               <motion.div 
-                className="absolute bottom-0 left-0 right-0 p-2 sm:p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent"
+                className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-6 bg-gradient-to-t from-black/95 via-black/60 to-transparent"
                 initial={{ opacity: 1 }}
                 animate={{ 
                   opacity: isVideoPlaying && !showControls ? 0 : 1,
@@ -396,8 +396,8 @@ const Projects = () => {
                 }}
                 transition={{ duration: 0.3 }}
               >
-                <h3 className="text-base sm:text-lg md:text-2xl font-bold mb-1 sm:mb-2 leading-tight">{projects[currentSlide].title}</h3>
-                <p className="text-gray-300 text-xs sm:text-sm md:text-base leading-snug">{projects[currentSlide].description}</p>
+                <h3 className="text-sm sm:text-lg md:text-2xl font-bold mb-0.5 sm:mb-2 leading-tight">{projects[currentSlide].title}</h3>
+                <p className="text-gray-300 text-xs sm:text-sm md:text-base leading-snug line-clamp-2 sm:line-clamp-none">{projects[currentSlide].description}</p>
                 {isVideoPlaying && (
                   <div className="mt-2 text-purple-400 text-xs sm:text-sm">
                     <span className="inline-block animate-pulse">●</span> Video playing
@@ -406,26 +406,19 @@ const Projects = () => {
               </motion.div>
             </motion.div>
 
-            {/* Swipe instructions for mobile */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white/60 text-sm pointer-events-none md:hidden">
-              <div className="flex items-center justify-center space-x-2">
-                <span>←</span>
-                <span className="text-xs">Swipe to navigate</span>
-                <span>→</span>
-              </div>
-            </div>
+            {/* Swipe instructions for mobile - removed for cleaner UI */}
 
-            {/* Carousel Controls - hidden on small screens where touch is preferred */}
+            {/* Carousel Controls - visible on all screen sizes */}
             <button
               onClick={prevSlide}
-              className="absolute left-1 sm:left-3 top-1/2 -translate-y-1/2 bg-purple-600/80 p-2.5 sm:p-3 rounded-full hover:bg-purple-500 active:bg-purple-700 transition-colors text-base hidden sm:flex items-center justify-center min-w-[44px] min-h-[44px]"
+              className="absolute left-1 sm:left-2 md:left-3 top-1/2 -translate-y-1/2 bg-purple-600/80 p-2 sm:p-2.5 md:p-3 rounded-full hover:bg-purple-500 active:bg-purple-700 transition-colors text-base flex items-center justify-center min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] z-10"
               aria-label="Previous slide"
             >
               ←
             </button>
             <button
               onClick={nextSlide}
-              className="absolute right-1 sm:right-3 top-1/2 -translate-y-1/2 bg-purple-600/80 p-2.5 sm:p-3 rounded-full hover:bg-purple-500 active:bg-purple-700 transition-colors text-base hidden sm:flex items-center justify-center min-w-[44px] min-h-[44px]"
+              className="absolute right-1 sm:right-2 md:right-3 top-1/2 -translate-y-1/2 bg-purple-600/80 p-2 sm:p-2.5 md:p-3 rounded-full hover:bg-purple-500 active:bg-purple-700 transition-colors text-base flex items-center justify-center min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] z-10"
               aria-label="Next slide"
             >
               →
@@ -449,32 +442,33 @@ const Projects = () => {
           </div>
 
           {/* Project Thumbnails Navigation */}
-          <div className="mt-4 sm:mt-6 pb-2 sm:pb-4 flex items-center justify-center gap-1.5 sm:gap-3 md:gap-4">
-            {/* Left Arrow - hidden on mobile */}
+          <div className="mt-8 sm:mt-10 pb-4 flex items-center justify-center gap-2 sm:gap-3 md:gap-4 w-full max-w-5xl mx-auto px-2">
+
+            {/* Left Arrow - NOW VISIBLE ON MOBILE */}
             <button
               onClick={moveThumbLeft}
               disabled={thumbIndex === 0}
-              className={`hidden sm:flex flex-shrink-0 p-2 sm:p-2.5 rounded-full transition-all duration-300 items-center justify-center min-w-[36px] min-h-[36px] ${
+              className={`flex flex-shrink-0 p-2 sm:p-2.5 rounded-full transition-all duration-300 items-center justify-center min-w-[36px] min-h-[36px] ${
                 thumbIndex === 0
                   ? 'bg-gray-700/40 text-gray-500 cursor-not-allowed opacity-50'
                   : 'bg-purple-600/80 text-white hover:bg-purple-500 active:bg-purple-700'
               }`}
-              aria-label="Previous thumbnail group"
+              aria-label="Previous thumbnails"
             >
               ←
             </button>
 
             {/* Thumbnails Container */}
-            <div className="flex space-x-2 sm:space-x-3">
+            <div className="flex overflow-x-auto no-scrollbar space-x-2 sm:space-x-3 md:space-x-4 px-1">
               {projects.slice(thumbIndex, thumbIndex + thumbnailCount).map((project, sliceIndex) => {
                 const actualIndex = thumbIndex + sliceIndex;
                 return (
                   <button
                     key={project.id}
-                    className={`relative flex-shrink-0 w-20 sm:w-24 md:w-32 aspect-video rounded-md overflow-hidden transition-all duration-300 ${
+                    className={`relative flex-shrink-0 w-24 sm:w-28 md:w-32 aspect-video rounded-md overflow-hidden transition-all duration-300 ${
                       currentSlide === actualIndex 
-                        ? 'ring-2 ring-purple-500 scale-105 sm:scale-110 z-10' 
-                        : 'opacity-60 hover:opacity-80 active:opacity-100'
+                        ? 'ring-2 ring-purple-500 scale-105 z-10' 
+                        : 'opacity-70 hover:opacity-100'
                     }`}
                     onClick={() => {
                       setCurrentSlide(actualIndex);
@@ -482,7 +476,6 @@ const Projects = () => {
                         setIsVideoPlaying(false);
                       }
                     }}
-                    aria-label={`Video ${actualIndex + 1}: ${project.title}`}
                   >
                     <Image 
                       src={`https://img.youtube.com/vi/${project.youtubeId}/mqdefault.jpg`} 
@@ -491,26 +484,26 @@ const Projects = () => {
                       width={320}
                       height={180}
                     />
-                    {currentSlide === actualIndex && isVideoPlaying && (
-                      <div className="absolute bottom-1 right-1 bg-purple-600 rounded-full p-0.5">
-                        <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-                      </div>
+
+                    {/* Active Indicator */}
+                    {currentSlide === actualIndex && (
+                      <div className="absolute inset-0 border-2 border-purple-500 rounded-md" />
                     )}
                   </button>
                 );
               })}
             </div>
 
-            {/* Right Arrow - hidden on mobile */}
+            {/* Right Arrow - NOW VISIBLE ON MOBILE */}
             <button
               onClick={moveThumbRight}
               disabled={thumbIndex >= Math.max(projects.length - thumbnailCount, 0)}
-              className={`hidden sm:flex flex-shrink-0 p-2 sm:p-2.5 rounded-full transition-all duration-300 items-center justify-center min-w-[36px] min-h-[36px] ${
+              className={`flex flex-shrink-0 p-2 sm:p-2.5 rounded-full transition-all duration-300 items-center justify-center min-w-[36px] min-h-[36px] ${
                 thumbIndex >= Math.max(projects.length - thumbnailCount, 0)
                   ? 'bg-gray-700/40 text-gray-500 cursor-not-allowed opacity-50'
                   : 'bg-purple-600/80 text-white hover:bg-purple-500 active:bg-purple-700'
               }`}
-              aria-label="Next thumbnail group"
+              aria-label="Next thumbnails"
             >
               →
             </button>
