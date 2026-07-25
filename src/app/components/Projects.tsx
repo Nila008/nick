@@ -47,6 +47,13 @@ const projects: Project[] = [
     category: "Technology"
   },
   {
+    id: 1,
+    title: "Fast-Paced",
+    description: "A informative video for google ads",
+    youtubeId: "dwulaAqBltI",
+    category: "Motion Graphics"
+  },
+  {
     id: 3,
     title: "Fitness Vlog",
     description: "Gym related",
