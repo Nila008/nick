@@ -47,77 +47,77 @@ const projects: Project[] = [
     category: "Technology"
   },
   {
-    id: 1,
+    id: 3,
     title: "Fast-Paced",
     description: "A informative video for google ads",
     youtubeId: "dwulaAqBltI",
     category: "Motion Graphics"
   },
   {
-    id: 3,
+    id: 4,
     title: "Fitness Vlog",
     description: "Gym related",
     youtubeId: "3h_Vs1Z85T4",
     category: "Fitness"
   },
   {
-    id: 4,
+    id: 5,
     title: "Fitness Video",
     description: "Gym related or Fitness Type",
     youtubeId: "oOS8RVwDMTI",
     category: "Fitness"
   },
   {
-    id: 5,
+    id: 6,
     title: "High Quality Short",
     description: "A high-quality short video",
     youtubeId: "E1kR2N0F2Uo",
     category: "Short"
   },
   {
-    id: 6,
+    id: 7,
     title: "3d Product",
     description: "3D Product Video",
     youtubeId: "WuSubgAsv2c",
     category: "3D"
     },
   {
-    id: 7,
+    id: 8,
     title: "3d animation",
     description: "3D Animation with 2M views",
     youtubeId: "esk5ik_u0j4",
     category: "3D"
   },
   {
-    id: 8,
+    id: 9,
     title: "Zack D Flim",
     description: "Zack D Style",
     youtubeId: "19tdo7Gxabc",
     category: "3D"
   },
   {
-    id: 9,
+    id: 10,
     title: "Bolt Motivation",
     description: "Style like Bolt Motivation",
     youtubeId: "wy2b3KXBmiI",
     category: "Quality"
   },
     {
-    id: 10,
+    id: 11,
     title: "Trading",
     description: "Trading related content",
     youtubeId: "V5NqLQSwwTQ",
     category: "Trading"
   },
   {
-    id: 11,
+    id: 12,
     title: "2D and 3D Mix",
     description: "Both 2D and 3D Animation",
     youtubeId: "RQAMXtrCQmA",
     category: "3D"
   },
     {
-    id: 12,
+    id: 13,
     title: "Gaming Video",
     description: "Gaming content",
     youtubeId: "L7YxgP5qeOc",
